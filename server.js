@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require("path");
 
 dotenv.config();
 
@@ -35,12 +36,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Connexion MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connecté avec succès'))
-.catch(err => console.error('Erreur de connexion MongoDB:', err));
+mongoose.connect(process.env.MONGODB_URI);
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
