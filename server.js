@@ -2,62 +2,106 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const path = require("path");
 
 dotenv.config();
 
 const app = express();
 
-// Middlewares
+/* =======================
+   MIDDLEWARES
+======================= */
 app.use(cors({
-  origin: ['https://nyantemafy.github.io', 'http://localhost:3000']
+  origin: [
+    'https://nyantemafy.github.io',
+    'http://localhost:3000'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Route de test
+/* =======================
+   ROUTE TEST
+======================= */
 app.get('/', (req, res) => {
-  res.json({ 
-    status: 'API fonctionnelle',
-    timestamp: new Date().toISOString()
+  res.status(200).json({
+    status: 'API OK',
+    message: 'Backend serverless running on Vercel',
+    time: new Date().toISOString()
   });
 });
 
-// Routes
+/* =======================
+   ROUTES API
+======================= */
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/payment', require('./routes/payment'));
 
-// Route de test
+/* =======================
+   HEALTH CHECK
+======================= */
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
+  res.status(200).json({ status: 'OK' });
 });
 
-// Connexion MongoDB
-mongoose.connect(process.env.MONGODB_URI);
+/* =======================
+   MONGODB CONNECTION
+   (anti-multiple connections)
+======================= */
+let cached = global.mongoose;
 
-// Serve static assets in production
-if (process.env.NODE_ENV === 'production') {
-  // Set static folder
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
-  
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend', 'build', 'index.html'));
-  });
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
 }
 
-// Error handling middleware
+async function connectDB() {
+  if (cached.conn) return cached.conn;
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(process.env.MONGODB_URI)
+      .then(mongoose => {
+        console.log('✅ MongoDB connected');
+        return mongoose;
+      })
+      .catch(err => {
+        console.error('❌ MongoDB error:', err);
+        throw err;
+      });
+  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+/* =======================
+   DB CONNECTION MIDDLEWARE
+======================= */
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    res.status(500).json({ message: 'Database connection failed' });
+  }
+});
+
+/* =======================
+   ERROR HANDLER
+======================= */
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    message: 'Something went wrong!', 
-    error: process.env.NODE_ENV === 'development' ? err.message : {} 
+  console.error(err);
+  res.status(500).json({
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+/* =======================
+   EXPORT (IMPORTANT)
+======================= */
+module.exports = app;

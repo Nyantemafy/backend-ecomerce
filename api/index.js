@@ -1,4 +1,2 @@
-const { createServer } = require('http');
-const app = require('../server'); // votre application Express existante
-
+const app = require('../server');
 module.exports = app;
