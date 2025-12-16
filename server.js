@@ -14,6 +14,14 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Route de test
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'API fonctionnelle',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
@@ -27,18 +35,12 @@ app.get('/api/health', (req, res) => {
 });
 
 // Connexion MongoDB
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    retryWrites: true,
-    w: 'majority'
-  })
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err);
-    process.exit(1);
-  });
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connecté avec succès'))
+.catch(err => console.error('Erreur de connexion MongoDB:', err));
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
