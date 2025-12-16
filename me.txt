@@ -1,0 +1,25 @@
+cd backend
+
+# Installer les dépendances
+npm install
+
+# Configurer .env avec vos credentials
+
+# Initialiser la base de données
+npm run seed
+
+# Démarrer le serveur
+npm run dev
+
+MongoDB : https://www.mongodb.com/atlas
+project0 :
+antemafy01_db_user
+tiE9KNCoMYebXjYL
+
+api key :
+lubzwelg
+eedbd93f-9aa1-47f4-9809-8517d2aff6e3
+
+Stripe : https://stripe.com/
+
+antema2005++++++
