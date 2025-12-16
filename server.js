@@ -1,3 +1,5 @@
+throw new Error("TEST SERVER.JS NOUVELLE VERSION");
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
