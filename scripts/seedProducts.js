@@ -329,74 +329,71 @@ const products = [
     ];
 
     const seedDatabase = async () => {
-    try {
-        // Connect to MongoDB
-        mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
-        console.log('✅ MongoDB connected');
+        try {
+            // Connect to MongoDB
+            await mongoose.connect(process.env.MONGODB_URI);
+            console.log("✅ MongoDB connected");
 
-        // Clear existing data
-        await Product.deleteMany({});
-        console.log('🗑️  Cleared products');
+            // Clear existing data
+            await Product.deleteMany({});
+            console.log('🗑️  Cleared products');
 
-        // Insert products
-        const createdProducts = await Product.insertMany(products);
-        console.log(`✅ ${createdProducts.length} products added`);
+            // Insert products
+            const createdProducts = await Product.insertMany(products);
+            console.log(`✅ ${createdProducts.length} products added`);
 
-        // Create admin user if doesn't exist
-        const adminExists = await User.findOne({ email: 'admin@demo.com' });
-        if (!adminExists) {
-        await User.create({
-            name: 'Admin User',
-            email: 'admin@demo.com',
-            password: 'admin123',
-            role: 'admin',
-            phone: '+1234567890',
-            address: {
-            street: '123 Admin Street',
-            city: 'San Francisco',
-            postalCode: '94102',
-            country: 'USA'
+            // Create admin user if doesn't exist
+            const adminExists = await User.findOne({ email: 'admin@demo.com' });
+            if (!adminExists) {
+            await User.create({
+                name: 'Admin User',
+                email: 'admin@demo.com',
+                password: 'admin123',
+                role: 'admin',
+                phone: '+1234567890',
+                address: {
+                street: '123 Admin Street',
+                city: 'San Francisco',
+                postalCode: '94102',
+                country: 'USA'
+                }
+            });
+            console.log('✅ Admin user created (admin@demo.com / admin123)');
+            } else {
+            console.log('ℹ️  Admin user already exists');
             }
-        });
-        console.log('✅ Admin user created (admin@demo.com / admin123)');
-        } else {
-        console.log('ℹ️  Admin user already exists');
-        }
 
-        // Create demo user if doesn't exist
-        const userExists = await User.findOne({ email: 'user@demo.com' });
-        if (!userExists) {
-        await User.create({
-            name: 'Demo User',
-            email: 'user@demo.com',
-            password: 'user123',
-            role: 'user',
-            phone: '+0987654321',
-            address: {
-            street: '456 User Avenue',
-            city: 'New York',
-            postalCode: '10001',
-            country: 'USA'
+            // Create demo user if doesn't exist
+            const userExists = await User.findOne({ email: 'user@demo.com' });
+            if (!userExists) {
+            await User.create({
+                name: 'Demo User',
+                email: 'user@demo.com',
+                password: 'user123',
+                role: 'user',
+                phone: '+0987654321',
+                address: {
+                street: '456 User Avenue',
+                city: 'New York',
+                postalCode: '10001',
+                country: 'USA'
+                }
+            });
+            console.log('✅ Demo user created (user@demo.com / user123)');
+            } else {
+            console.log('ℹ️  Demo user already exists');
             }
-        });
-        console.log('✅ Demo user created (user@demo.com / user123)');
-        } else {
-        console.log('ℹ️  Demo user already exists');
-        }
 
-        console.log('\n🎉 Database seeded successfully!');
-        console.log('\n📝 Demo Credentials:');
-        console.log('   Admin: admin@demo.com / admin123');
-        console.log('   User:  user@demo.com / user123\n');
-        
-        process.exit(0);
-    } catch (error) {
-        console.error('❌ Error seeding database:', error);
-        process.exit(1);
-    }
-};
+            console.log('\n🎉 Database seeded successfully!');
+            console.log('\n📝 Demo Credentials:');
+            console.log('   Admin: admin@demo.com / admin123');
+            console.log('   User:  user@demo.com / user123\n');
+            
+            process.exit(0);
+        } catch (error) {
+            console.error('❌ Error seeding database:', error);
+            process.exit(1);
+        }
+    };
 
 seedDatabase();

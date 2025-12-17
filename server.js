@@ -23,26 +23,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /* =======================
-   ROUTE TEST
-======================= */
-app.get('/', (req, res) => {
-  res.status(200).json({
-    status: 'API OK',
-    message: 'Backend serverless running on Vercel',
-    time: new Date().toISOString()
-  });
-});
-
-/* =======================
-   ROUTES API
-======================= */
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/products', require('./routes/products'));
-app.use('/api/orders', require('./routes/orders'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/payment', require('./routes/payment'));
-
-/* =======================
    HEALTH CHECK
 ======================= */
 app.get('/api/health', (req, res) => {
@@ -91,6 +71,26 @@ app.use(async (req, res, next) => {
 });
 
 /* =======================
+   ROUTES API
+======================= */
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/products', require('./routes/products'));
+app.use('/api/orders', require('./routes/orders'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/payment', require('./routes/payment'));
+
+/* =======================
+   ROUTE TEST
+======================= */
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'API OK',
+    message: 'Backend serverless running on Vercel',
+    time: new Date().toISOString()
+  });
+});
+
+/* =======================
    ERROR HANDLER
 ======================= */
 app.use((err, req, res, next) => {
@@ -105,3 +105,11 @@ app.use((err, req, res, next) => {
    EXPORT (IMPORTANT)
 ======================= */
 module.exports = app;
+
+const PORT = process.env.PORT || 5000;
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+}
